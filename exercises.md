@@ -19,7 +19,7 @@ _start:
 
 - The system call number for `exit` is `60`.
 - The `exit` syscall takes one argument: the exit code.
-- The exit code should be placed in the `%rdi` register.
+- The exit code is already in the `%rdi` register, so we don't need to update it.
 - The syscall number should be placed in the `%rax` register.
 - Use the `syscall` instruction to invoke the system call after setting up the arguments.
 
