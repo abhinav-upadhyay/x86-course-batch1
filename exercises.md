@@ -1,3 +1,4 @@
+## Intro
 **Exercise 1: Fix the Crashing Program**
 
 The following assembly program crashes when executed. Your task is to modify it to terminate gracefully by invoking the appropriate system call to exit the program.
@@ -67,6 +68,7 @@ echo $?
 It should match the PID of the process.
 
 ---
+## Working with Registers
 
 **Exercise 3: Explore x86 Register Variants and Sizes**
 
@@ -142,7 +144,7 @@ ld -o reg reg.o
 gdb ./reg
 ```
 
-
+## Accessing Memory
 
 **Exercise 4: Basic Addressing - Direct and Register-Based Access**
 
@@ -328,6 +330,8 @@ echo $?
 You should see 4237 if the values are `42` and `37`.
 
 This exercise helps you understand struct layout, offset navigation, and simple integer arithmetic in a systems programming context. to interpret fixed-format records using struct offsets and reinforces alignment, byte layout, and field access in low-level code.
+
+## Control-flow 
 
 **Exercise 7: Control Flow with ************************************************************************************`fork`************************************************************************************ and Process Identification**
 
@@ -553,7 +557,325 @@ This exercise does not require dynamic memory or function calls—it’s pure po
 
 You can store the integer value in `%rdi` and exit with the last node’s value just for fun! 
 
+---
+
+## Loop Exercises
+
+### Exercise 3: "Array Maximum"
+**Task:** Find the maximum value in an array of signed integers.
+
+```asm
+.data
+values: .long -5, 12, -9, 24, 16, -3, 8, 19, -14
+count:  .quad 9
+
+.text
+.globl _start
+_start:
+    # Initialize max with first element
+    # Loop through remaining elements
+    # Compare each with max and update if larger
+    # Exit with max value as status
+```
+
+**Skills:** Loops with comparison, conditional updates, signed comparisons
+
+
+### Exercise: "Memory Fill"
+**Task:** Implement functionality similar to `memset` that fills a memory region with a specified byte.
+
+```asm
+.data
+buffer: .space 100    # 100-byte buffer to fill
+fill_byte: .byte 0x41 # ASCII 'A'
+fill_size: .quad 100  # Number of bytes to fill
+
+.text
+.globl _start
+_start:
+    # Your code here to fill buffer with fill_byte for fill_size bytes
+    # Use a loop to iterate through the memory region
+    # Exit with 0 on success
+```
+
+**Skills:** Basic loop with counter, memory writes, pointer arithmetic
+
+### Exercise: "String Length"
+**Task:** Calculate the length of a null-terminated string (like `strlen`).
+
+```asm
+.data
+test_string: .asciz "Hello, assembly programmer!"
+
+.text
+.globl _start
+_start:
+    # Load address of test_string
+    # Loop through bytes until you find a zero byte
+    # Count in a register
+    # Exit with the string length as status code
+```
+
+**Skills:** Pointer traversal, null-termination check, counter
+
+### Exercise: "Count Set Bits"
+**Task:** Count the number of set bits (1s) in a 64-bit value.
+
+```asm
+.data
+value: .quad 0x1234567890ABCDEF
+
+.text
+.globl _start
+_start:
+    # Load the value
+    # Loop 64 times (for each bit)
+    # Use shift and test/branch to count bits
+    # Exit with the count as status code
+```
+
+**Skills:** Bit manipulation, shift operations, conditional logic in loops
+
+### Exercise: "Reverse Array In-Place"
+**Task:** Reverse an array of 64-bit integers in-place.
+
+```asm
+.data
+array: .quad 1, 2, 3, 4, 5, 6, 7, 8
+array_size: .quad 8
+
+.text
+.globl _start
+_start:
+    # Swap first with last, second with second-to-last, etc.
+    # Exit with 0 on success
+```
+
+**Skills:** Array manipulation, pointer arithmetic, loop with multiple indices
+
+# Number to ASCII String Conversion Exercise
+
+**Task:** Convert a 64-bit unsigned integer into its ASCII string representation.
+
+```asm
+.data
+value:      .quad 12345678901234   # The number to convert
+buffer:     .zero 32              # Output buffer for ASCII string
+digits:     .ascii "0123456789"    # Digit lookup table
+
+.text
+.globl _start
+_start:
+    # Your code here to convert value to ASCII string in buffer
+    # Exit with the string length as status code
+```
+
+### Approach:
+
+1. Initialize a pointer to the end of the buffer (we'll build the string backward)
+2. Place a null terminator at the end
+3. Loop:
+   - Divide the number by 10 to get quotient and remainder
+   - Use remainder to look up the ASCII digit
+   - Store digit at current buffer position and decrement pointer
+   - Update the number with the quotient
+   - Repeat until number becomes zero
+4. Optionally print the resulting string
+5. Calculate string length and exit with that value
+
+### Challenges to Consider:
+
+- Handle signed values (with leading minus sign for negatives)
+
+### Example Implementation Hints:
+
+```asm
+# Division approach:
+# Loop:
+#   mov number, %rax
+#   mov $10, %rbx
+#   xor %rdx, %rdx    # Clear upper bits for division
+#   div %rbx          # Divide by 10, quotient in rax, remainder in rdx
+#   # Use rdx as an index into the digits table
+#   # Store digit at current buffer position
+#   # Continue until number is 0
+```
+
+### Expected Output:
+
+For the value 12345678901234, the buffer should contain the ASCII string "12345678901234", and the program should exit with status code 14 (the string length).
+
+### Learning Outcomes:
+
+- Division and modulus operations in assembly
+- Backwards string construction technique
+- Lookup table usage
+- Pointer manipulation within a buffer
+- Managing iteration conditions in loops
+
+This exercise is particularly valuable because:
+1. It's a practical algorithm used in all programming languages
+2. It exercises arithmetic, memory access, and looping
+3. It demonstrates how to convert between internal binary representation and human-readable format
+4. It can be extended in multiple ways for additional challenges
+
+### Exercise: "Simple File Copy"
+**Task:** Copy contents from one file to another, 512 bytes at a time.
+
+```asm
+.data
+source_path: .asciz "/etc/passwd"
+dest_path:   .asciz "/tmp/passwd.copy"
+buffer:      .space 512
+
+.bss
+source_fd:   .space 8
+dest_fd:     .space 8
+
+.text
+.globl _start
+_start:
+    # Open source file for reading
+    # Open dest file for writing (creating if needed)
+    # Loop: Read up to 512 bytes, write to dest file
+    # Continue until read returns 0 bytes
+    # Close both files and exit
+```
+**Skills:** File I/O syscalls, read/write loop, buffer management
+
 ## Mini Project
+
+# Process Resource Statistics with getrusage
+
+## Background: The getrusage System Call
+
+The `getrusage` system call provides a powerful way to gather resource usage information about a running process. It fills a data structure with statistics about CPU time, memory usage, I/O operations, and other system resource consumption.
+
+On x86-64 Linux, the system call number for getrusage is 98. It takes two arguments:
+1. An integer specifying which process to examine (0 for current process, 1 for children)
+2. A pointer to a buffer where the data will be stored
+
+## The rusage Structure
+
+The kernel fills a `struct rusage` data structure that looks like this in C:
+
+```c
+struct rusage {
+    struct timeval ru_utime;    /* user CPU time used */
+    struct timeval ru_stime;    /* system CPU time used */
+    long ru_maxrss;             /* maximum resident set size (KB) */
+    long ru_ixrss;              /* integral shared memory size */
+    long ru_idrss;              /* integral unshared data size */
+    long ru_isrss;              /* integral unshared stack size */
+    long ru_minflt;             /* page reclaims (soft page faults) */
+    long ru_majflt;             /* page faults (hard page faults) */
+    long ru_nswap;              /* swaps */
+    long ru_inblock;            /* block input operations */
+    long ru_oublock;            /* block output operations */
+    long ru_msgsnd;             /* IPC messages sent */
+    long ru_msgrcv;             /* IPC messages received */
+    long ru_nsignals;           /* signals received */
+    long ru_nvcsw;              /* voluntary context switches */
+    long ru_nivcsw;             /* involuntary context switches */
+};
+
+struct timeval {
+    long tv_sec;                /* seconds */
+    long tv_usec;               /* microseconds */
+};
+```
+
+In memory, each `long` value takes 8 bytes on x86-64, and the fields appear in the order shown. The `struct timeval` values each occupy 16 bytes (8 for seconds, 8 for microseconds).
+
+## Your Task: Create a Resource Monitor
+
+Build a utility that displays five key process resource statistics:
+
+1. **User CPU time**: Time spent executing user code
+2. **System CPU time**: Time spent in kernel mode on behalf of the process
+3. **Maximum Resident Set Size**: Peak memory usage in kilobytes
+4. **Page Faults**: Number of times the process needed to load memory from disk
+5. **Context Switches**: Number of times the CPU switched to/from this process
+
+### Implementation Requirements:
+
+1. Allocate a buffer for the rusage structure (144 bytes is sufficient)
+2. Call the getrusage system call with RUSAGE_SELF (0) as the first argument
+3. Extract each statistic from the structure at the appropriate offset:
+   - User time: offset 0 (first 8 bytes for seconds)
+   - System time: offset 16 (8 bytes for seconds)
+   - Max RSS: offset 32 (8 bytes)
+   - Page faults: combine values at offsets 40 and 48
+   - Context switches: combine values at offsets 112 and 120
+4. Display each value with an appropriate label
+5. Exit with status code 0
+
+### Memory Layout of Key Fields:
+
+```
+Offset  Field
+------  -----
+0       ru_utime.tv_sec (user time seconds)
+8       ru_utime.tv_usec (user time microseconds)
+16      ru_stime.tv_sec (system time seconds)
+24      ru_stime.tv_usec (system time microseconds)
+32      ru_maxrss (maximum resident set size in KB)
+40      ru_minflt (minor page faults)
+48      ru_majflt (major page faults)
+...
+112     ru_nvcsw (voluntary context switches)
+120     ru_nivcsw (involuntary context switches)
+```
+
+### Starter Code:
+
+```asm
+.data
+# Headers for each statistic
+user_time:      .asciz "User time (sec): "
+system_time:    .asciz "System time (sec): "
+max_rss:        .asciz "Memory usage (KB): "
+page_faults:    .asciz "Page faults: "
+ctx_switches:   .asciz "Context switches: "
+newline:        .asciz "\n"
+
+# Buffer for rusage struct
+rusage:         .space 144
+
+# Buffer for number conversion
+num_buffer:     .space 32
+
+.text
+.globl _start
+_start:
+    # Call getrusage
+    # ...your code here...
+    
+    # Process and display the statistics
+    # ...your code here...
+    
+    # Exit
+    # ...your code here...
+
+# Helper function to convert numbers to strings
+# ...your code here, if needed...
+```
+
+### Expected Output:
+
+```
+User time (sec): 0
+System time (sec): 0
+Memory usage (KB): 1024
+Page faults: 74
+Context switches: 3
+```
+
+This exercise combines practical system monitoring with fundamental assembly programming concepts: system calls, memory structures, offset calculations, and formatted output. It creates a genuinely useful tool while reinforcing core skills.
+
+---
+
+## Main Project
 
 ### Exercise 11: A Minimal Shell Using `fork` and `execve`
 
